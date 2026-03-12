@@ -1,0 +1,2 @@
+[04-Jun-2018 07:15:31 UTC] PHP Fatal error:  Cannot redeclare App\Http\Controllers\PageController::voltmax() in /home/xg8vk4pae82p/laravel/nikko/app/Http/Controllers/PageController.php on line 63
+[22-Jul-2018 18:50:01 UTC] PHP Fatal error:  Cannot use empty array elements in arrays in /home/xg8vk4pae82p/laravel/nikko/app/Http/Controllers/MarcasController.php on line 74

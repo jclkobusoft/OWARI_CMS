@@ -1,0 +1,431 @@
+/*	Media 768Px Start */
+@media (min-width: 768px) and (max-width: 990px) {
+	.navbar-nav > li.automechanic-megamenu-li { position: relative;}
+	.menu.active { width: 260px;}
+	.navbar-nav > li.active > a { color: #262626;}
+	.menu,  .menu ul ul { margin: 0; max-height: 0; overflow: hidden;}
+	span.has-subnav,a.menu-link { display: block;}
+	.sub-menu li a { background-color: #fff;}
+	.navbar { z-index: 999; border-radius: 0px; position: absolute; background-color: #fff; border-top: none; border-bottom: none; left: 50%; top: 68px; margin: 5px 0px 0px -130px;}
+	a.menu-link { text-align: center; float: left; width: 100%; font-weight: bold; font-size: 22px; line-height: 3.1;}
+	a.menu-link span { margin: 28px 0px 1px 0px; float: none; display: inline-block; }
+	.navbar-nav { margin: 0px; padding-top: 10px; float: left; text-align: left; } .navbar-nav > li > a:before { display: none; }
+	.navbar-nav .sub-menu,.automechanic-megamenu { margin: 0px; float: left; width: 100%; position: relative; opacity: 1; visibility: visible; background-color: transparent; top: 0; }
+	.automechanic-megamenu li .col-md-2 { width: 100%;}
+	.automechanic-megamenu li { margin: 0px;}
+	.automechanic-megamenu { padding: 0px;}
+	.js .menu > ul > li.automechanic-megamenu-li > ul.active { max-height: 75em;}
+	.menu > ul > li.automechanic-megamenu-li > ul.automechanic-megamenu ul { margin: 0; max-height: 20em; overflow: hidden;}
+	.navbar-nav .sub-menu {
+		-webkit-transform: translate(0px);
+		   -moz-transform: translate(0px);
+		    -ms-transform: translate(0px);
+		     -o-transform: translate(0px);
+		        transform: translate(0px);
+	}
+	.navbar-nav .sub-menu .sub-menu { left: 0px;}
+	.navbar .navbar-collapse { padding: 0px;}
+	.navbar-nav > li > a { float: left; width: 100%; padding: 20px 20px 22px 20px; color: #555555; line-height: 14px;}
+	.navbar-nav > li { width: 100%; float: left; margin: 0px;}
+	.sub-menu .sub-menu { left: 0px;}
+	.navbar-nav > li { padding: 0px;}
+	.navbar-nav > li:first-child { padding-left: 0px;}
+	/* Main Grid */
+	.automechanic-main-content .col-md-4,.automechanic-main-content .col-md-3 { float: none; display: inline-block; vertical-align: top; margin-right: -4px; width: 50%; }
+	.automechanic-main-content .col-md-7,.automechanic-main-content .col-md-5 { width: 100%; float: left; margin-bottom: 30px; }
+	.col-md-12 { float: left; width: 100%; }
+	.automechanic-main-header aside.col-md-3,
+	.automechanic-main-header aside.col-md-9 { width: 100%; float: left;}
+	/*header*/
+	.navbar-nav > li > a small { margin: -6px 40px 0px 0px;}
+	.navbar-nav > li.active > a { color: #262626;}
+	.automechanic-top-strip { width: 100%;}
+	.logo { text-align: center; margin: 0px 0px 30px;}
+	.automechanic-strip-info li { margin: 0px 17px 0px 0px;}
+	.appointment-btn { margin: 25px 0px 0px; display: inline-block; float: none;}
+	.automechanic-banner-form { display: none;}
+	.automechanic-banner-caption { margin: -185px 0px 0px;}
+	.automechanic-classic-btn { display: none;}
+	.automechanic-text-three h2 { margin: 0px 0px 15px;}
+	.automechanic-call-to-action h4 { font-size: 26px; width: 20%;}
+	.automechanic-call-to-action h2 { font-size: 42px;}
+	.automechanic-call-to-action h3 { font-size: 43px; width: 45%;}
+	.automechanic-call-to-actionfull { padding: 40px 0px 35px;}
+	.automechanic-service-package,.automechanic-service-package.two { padding: 0px;}
+	.automechanic-main-content .automechanic-main-section.automechanic-service-packagefull .col-md-6 { width: 50%; float: left;}
+	.automechanic-full-promo-text .appointment-btn { display: none;}
+	.automechanic-promo-caption { padding: 5px 30px 0px 30px;}
+	.automechanic-promo-caption h2 ~ .automechanic-full-promo-text { padding: 12px 0px 0px 230px;}
+	.automechanic-service-modern figure figcaption { padding: 15px 10px 16px 10px;}
+	.automechanic-find-location ul li:first-child,.automechanic-find-location ul li:last-child,.automechanic-find-location ul li { padding: 0px;}
+	.automechanic-find-location ul li:before { display: none;}
+	.automechanic-location-form ul li input[type="text"],.automechanic-location-form .automechanic-search-select { width: 100%;}
+	.automechanic-location-form ul li { width: 50%; margin-right: 0px; padding: 0px 15px;}
+	.automechanic-location-form ul { margin: 0px -15px;}
+	.widget-about-padding,.widget-service-padding { padding: 0px;}
+	.automechanic-location-form ul li:last-child,.automechanic-location-form ul li label { float: left;}
+	.automechanic-footer-widget .widget { float: none; width: 50%; display: inline-block; vertical-align: top; margin-right: -4px;}
+	.widget-contact-padding { padding: 0px 60px 0px 0px;}
+	.automechanic-footer-links .col-md-4 { width: 40%; float: left; padding: 0px;}
+	.automechanic-footer-links .col-md-4:first-child,.automechanic-footer-links .col-md-4:last-child { width: 30%; }
+	.automechanic-footer-social li { margin: 0px; width: 50%; text-align: center;}
+	.automechanic-footer-social li a { float: none; display: inline-block;}
+	.automechanic-footer-logo { padding: 37px 0px 44px;}
+	.automechanic-footer-links p { padding-top: 50px; padding-left: 15px;}
+	.automechanic-footer-social { padding: 5px 25px 0px 0px;}
+	.automechanic-about-thumb { display: none;}
+	.automechanic-testimonial ul li { width: 50%;}
+	.automechanic-team-social { text-align: center;}
+	.automechanic-team-social li { float: none; display: inline-block; margin: 0px -4px -9px 0px;}
+	.automechanic-main-content .widget { padding: 0px 10px; float: none; display: inline-block; width: 50%; vertical-align: top; margin-right: -4px;}
+	.automechanic-main-content aside.col-md-3 { width: 100%;}
+	.automechanic-blog.automechanic-blog-large > ul > li { width: 100%;}
+	.automechanic-contact-us ul li { width: 50%; float: none; display: inline-block; vertical-align: top; margin-right: -4px;}
+	.automechanic-contact-info { padding: 27px 15px 36px;}
+	.automechanic-faq-tabs .nav-tabs li a,.automechanic-filterable ul li a { width: 180px;}
+	.automechanic-subheader { background-size: cover;}
+	.automechanic-portfolio-option li.web { margin-right: 54px;}
+	.automechanic-portfolio > ul > li { width: 50%;}
+	.automechanic-portfolio-medium figcaption { padding: 0px 0px 10px 20px;}
+	.automechanic-priceplan-wrap h3 { margin: 0px 0px 16px 40px;}
+	.automechanic-search-wrap:before { width: 398px; margin: -10px -40px 0px 0px;}
+	.automechanic-service-text { margin: 0px 0px 40px;}
+	.automechanic-service-mediumfull .col-md-4 { width: 100%;}
+	.automechanic-service.automechanic-service-medium > ul > li { width: 50%; float: left;}
+	.automechanic-shop-wrap .col-md-5 { width: 41.66666667%; }
+	.automechanic-shop-wrap .col-md-7 { width: 58.33333333%; }
+	.automechanic-number-select,.automechanic-shop-cetagories { margin-bottom: 10px;}
+	.automechanic-team-thumb-text { width: 57%;}
+	.automechanic-blog > ul > li,.automechanic-gallery > ul > li,.automechanic-portfolio > ul > li,
+	.automechanic-service > ul > li { float: none; display: inline-block; vertical-align: top; margin-right: -4px; width: 50%;}
+	.automechanic-blog.automechanic-blog-list > ul > li { width: 100%;}
+	.automechanic-team-thumb { width: 296px;}
+	.automechanic-aboutus { margin: 0px 0px 50px;}
+	.automechanic-service.automechanic-service-modern ul li { float: none; display: inline-block; margin-right: -4px; vertical-align: top; width: 50%;}
+	.navbar-nav li a[title]:after { margin: -6px 41px 0px 0px; padding: 1px 6px 2px;}
+	.automechanic-main-header { text-align: center;}
+	.automechanic-strip-info { display: inline-block; float: none; width: auto;}
+	.automechanic-strip-form form { float: none; display: inline-block;	}
+	.automechanic-strip-option { display: inline-block; float: none; padding: 0 0px 9px;}
+	.automechanic-top-strip { text-align: center;}
+	.automechanic-top-strip .automechanic-right-section,.automechanic-strip-info,.automechanic-strip-form { width: 100%;}
+	.automechanic-strip-info li { float: none; display: inline-block;}
+	.widget_contact a { padding-top: 18px;}
+	.automechanic-megalist li { z-index: 1;}
+	.automechanic-shape-transparent { display: none;}
+
+
+
+}
+/* Media 420Px Start */
+@media (max-width: 767px) {
+	.navbar-nav > li.automechanic-megamenu-li { position: relative;}
+	.menu.active { width: 260px;}
+	.navbar-nav > li.active > a { color: #262626;}
+	.menu,  .menu ul ul { margin: 0; max-height: 0; overflow: hidden;}
+	span.has-subnav,a.menu-link { display: block;}
+	.sub-menu li a { background-color: #fff;}
+	.navbar { z-index: 999; border-radius: 0px; position: absolute; background-color: #fff; border-top: none; border-bottom: none; left: 50%; top: 68px; margin: 5px 0px 0px -130px;}
+	a.menu-link { text-align: center; float: left; width: 100%; font-weight: bold; font-size: 22px; line-height: 3.1;}
+	a.menu-link span { margin: 28px 0px 1px 0px; float: none; display: inline-block; }
+	.navbar-nav { margin: 0px; padding-top: 10px; float: left; text-align: left; } .navbar-nav > li > a:before { display: none; }
+	.navbar-nav .sub-menu,.automechanic-megamenu { margin: 0px; float: left; width: 100%; position: relative; opacity: 1; visibility: visible; background-color: transparent; top: 0; }
+	.automechanic-megamenu li .col-md-2 { width: 100%;}
+	.automechanic-megamenu li { margin: 0px;}
+	.automechanic-megamenu { padding: 0px;}
+	.js .menu > ul > li.automechanic-megamenu-li > ul.active { max-height: 75em;}
+	.menu > ul > li.automechanic-megamenu-li > ul.automechanic-megamenu ul { margin: 0; max-height: 20em; overflow: hidden;}
+	.navbar-nav .sub-menu {
+		-webkit-transform: translate(0px);
+		   -moz-transform: translate(0px);
+		    -ms-transform: translate(0px);
+		     -o-transform: translate(0px);
+		        transform: translate(0px);
+	}
+	.navbar-nav .sub-menu .sub-menu { left: 0px;}
+	.navbar .navbar-collapse { padding: 0px;}
+	.navbar-nav > li > a { float: left; width: 100%; padding: 20px 20px 22px 20px; color: #555555; line-height: 14px;}
+	.navbar-nav > li { width: 100%; float: left; margin: 0px;}
+	.sub-menu .sub-menu { left: 0px;}
+	.navbar-nav > li { padding: 0px;}
+	.navbar-nav > li:first-child { padding-left: 0px;}
+	/* Main Grid */
+	.automechanic-main-content .col-md-4,.automechanic-main-content .col-md-3{ float: none; display: inline-block; vertical-align: top; margin-right: -4px; width: 50%; }
+	.automechanic-main-content .col-md-7,.automechanic-main-content .col-md-5 { width: 100%; float: left; margin-bottom: 30px; }
+	.col-md-12 { float: left; width: 100%; }
+	.automechanic-main-header aside.col-md-3 { width: 100%;}
+	.automechanic-main-header aside.col-md-9 { width: 100%;}
+	.automechanic-main-content aside.col-md-6 { width: 50%; display: inline-block; margin-right: -4px; vertical-align: top;}
+	/*header*/
+	.navbar-nav > li > a small { margin: -6px 40px 0px 0px;}
+	.automechanic-main-header { text-align: center;}
+	.automechanic-top-strip,.automechanic-strip-form form,.automechanic-strip-option { width: 100%;}
+	.automechanic-strip-info li { margin: 0px 10px 0px;}
+	.automechanic-strip-info li i { float: none;}
+	.automechanic-strip-option li,.automechanic-strip-info li,.appointment-btn { float: none; display: inline-block; }
+	.automechanic-strip-option li {margin: 0px 15px;}
+	.logo { margin: 0px 0px 20px;}
+	.automechanic-banner-caption { display: none;}
+	.automechanic-call-to-action h2,.automechanic-call-to-action h3,.automechanic-call-to-action h4 { width: 100%; margin: 0 0 20px;}
+	.automechanic-call-to-action h3 { line-height: 0.9;}
+	.automechanic-call-to-action h3 > span { display: inline-block; line-height: 1.3;}
+	.automechanic-call-to-actionfull { background-size: cover;}
+	.green-color:before,.white-color:before { content: none;}
+	.automechanic-promo-box { display: none;}
+	.automechanic-service.automechanic-service-modern ul li,.automechanic-service.automechanic-service-modern ul li.width { width: 50%;}
+	.automechanic-find-location ul li { width: 50%; padding: 0px; }
+	.automechanic-find-location ul li:first-child,.automechanic-find-location ul li:last-child,
+	.widget-about-padding,.widget-service-padding { padding: 0px;}
+	.automechanic-location-form ul li input[type="text"],.automechanic-location-form .automechanic-search-select,
+	.automechanic-location-form ul li { width: 100%;}
+	.automechanic-location-form ul li { margin: 0px 0px 20px 0px;}
+	.automechanic-location-form ul li label { float: left;}
+	.automechanic-footer-social li:last-child { margin: 0px;}
+	.automechanic-footer-links { padding: 20px 0px 30px;}
+	.automechanic-find-location ul li:before { content: none;}
+	.automechanic-service-modern ul li.width figure figcaption { padding: 15px 18px 20px;}
+	.automechanic-service.automechanic-service-modern ul li {float: none; display: inline-block; margin-right: -4px; vertical-align: top;}
+	.automechanic-service-modern ul li.width figure figcaption h5 { font-size: 18px; line-height: 1.2;}
+	.automechanic-footer-widget .widget { float: none; width: 50%; display: inline-block; vertical-align: top; margin-right: -4px;}
+	.widget-contact-padding { padding: 0px 50px 0px 0;}
+	.automechanic-footer-links .col-md-4 { width: 70%; display: inline-block; margin-right: -4px; vertical-align: top;}
+	.automechanic-footer-social li { margin: 0px 15px 0px 0px;}
+	.automechanic-footer-social li { float: none; margin: 0px 13px 0px 0px; display: inline-block;}
+	.automechanic-footer-links { text-align: center; overflow: hidden;}
+	.automechanic-footer-social { margin: 0px 0px 0px;}
+	.automechanic-footer-logo { margin: 30px 0px 0px;}
+	.automechanic-footer-links p { width: 100%;}
+	.automechanic-error-wrap {width: 100%;}
+	.automechanic-error-text { padding: 76px 0px 83px; border: 7px solid #262626;}
+	.automechanic-error-text h2 { font-size: 256px; left: 50%; margin: 0 0 0 -220px;}
+	.automechanic-testimonial ul li { width: 50%; float: none; display: inline-block; margin-right: -4px; vertical-align: top;}
+	.automechanic-about-thumb { margin: 0px;}
+	.automechanic-testimonial-text { padding: 37px 24px 31px;}
+	.automechanic-blog-list figure { width: 100%;}
+	.automechanic-blog-list figure ~ .automechanic-blog-list-text { float: left; margin: 0px; padding: 20px 0px 0px;}
+	.automechanic-next-post,.automechanic-prev-post { padding: 0px;}
+	.automechanic-blog > ul > li,.automechanic-gallery > ul > li,.automechanic-portfolio > ul > li,
+	.automechanic-service > ul > li { float: none; display: inline-block; vertical-align: top; margin-right: -4px; width: 50%;}
+	.automechanic-blog.automechanic-related-blog > ul > li { margin: 0px -4px 30px 0px;}
+	.comment-list .children { padding: 0px;}
+	.automechanic-main-content .widget { padding: 0px 10px; float: none; display: inline-block; width: 50%; vertical-align: top; margin-right: -4px;}
+	.automechanic-main-content aside.col-md-3 { width: 100%;}
+	.automechanic-blog.automechanic-blog-large > ul > li { width: 100%;}
+	.automechanic-contact-form { right: 0px; width: 100%; padding: 29px 15px 10px;}
+	.automechanic-contact-us ul li { width: 50%;}
+	.automechanic-faq-tabs .nav-tabs li a,.automechanic-filterable ul li a { width: 142px;}
+	.automechanic-modern-gallery figure figcaption h2 { font-size: 18px;}
+	.automechanic-subheader { background-size: cover;}
+	.automechanic-portfolio-option li { margin: 0px 24px 13px 0px;}
+	.automechanic-portfolio-option li.web { margin-right: 24px;}
+	.automechanic-portfolio-option { padding: 21px 15px 9px;}
+	.automechanic-portfolio-grid figcaption h4 { font-size: 20px;}
+	.automechanic-portfolio-grid figcaption { padding: 0px 7px;}
+	.automechanic-filterable ul { float: left; width: 100%;}
+	.automechanic-priceplan-heading:after { width: 95%;}
+	.automechanic-priceplan-wrap h3 { margin: 0px 0px 16px 0px;}
+	.automechanic-priceplan-list { padding: 0px 30px 40px;}
+	.automechanic-search-wrap:before { content: none;}
+	.automechanic-search-result { width: 100%; margin: 0px 0px 50px;}
+	.automechanic-service-text { margin: 0px 0px 40px;}
+	.automechanic-service-mediumfull .col-md-4,.automechanic-shop-filter form { width: 100%;}
+	.automechanic-service.automechanic-service-medium > ul > li { width: 50%; float: left;}
+	.automechanic-shop-filter > span { margin: 4px 0px 0px; width: 100%;}
+	.automechanic-shop-filter { text-align: center; padding: 14px 20px 16px 20px;}
+	.automechanic-shop-list figure ~ .automechanic-shop-list-text { float: left; margin: 0px; padding-left: 0px;}
+	.automechanic-shop-filter form ul li,.automechanic-shop-filter .nav-tabs { float: none; display: inline-block;}
+	.automechanic-shop > ul > li { width: 50%; float: left;}
+	.automechanic-team-thumb-text { width: 100%; padding: 26px 30px 0px 0px;}
+	.automechanic-shop-list figure,.automechanic-team-thumb { width: 100%;}
+	.automechanic-team-list figure { width: 100%;}
+	.automechanic-team-list figure ~ .automechanic-team-list-text { margin: 0px; float: left;}
+	.automechanic-team > ul > li { float: left; width: 50%;}
+	.automechanic-team-list-text { padding: 24px 15px 29px;}
+	.automechanic-service-grid-text { padding: 40px 30px;}
+	.automechanic-service-package ul li span { float: none; display: block;}
+	.automechanic-service-title { line-height: 1;}
+	.automechanic-service-package,.automechanic-service-package.two { padding: 0px;}
+	.automechanic-partner-slider .slick-arrow { display: none !important;}
+	.navbar-nav li a[title]:after { margin: -6px 41px 0px 0px; padding: 1px 6px 2px;}
+	.automechanic-portfolio-medium figcaption p { display: none;}
+	.automechanic-footer-logo { border-left: none; border-right: none;}
+	.automechanic-top-strip { text-align: center;}
+	.automechanic-top-strip .automechanic-right-section,.automechanic-strip-info,
+	.automechanic-strip-form { width: 100%;}
+	.white-color,.green-color { display: none;}
+	.automechanic-promo-caption h2 ~ .automechanic-full-promo-text { float: left; padding: 0px;}
+	.automechanic-promo-caption { padding: 0px;}
+	.automechanic-promo-caption h2 { margin: 0px;}
+	.widget_contact a { padding-top: 15px;}
+	.loginmodal .modal-dialog { margin-top: 65px;}
+	.automechanic-subheader { text-align: center;}
+	.automechanic-breadcrumb { float: none; display: inline-block;}
+	.automechanic-subheader h1 { float: none;}
+	.automechanic-megalist li { z-index: 1;}
+	.automechanic-shape-transparent { display: none;}
+
+}
+
+/* Media 300Px Start */
+@media (max-width: 480px) {
+	/*main grid*/
+	.automechanic-main-content .col-md-4,.automechanic-main-content .col-md-3,.automechanic-main-content .col-md-6 { margin-right: 0px; width: 100%; }
+	/*main grid*/
+	.automechanic-main-content aside.col-md-6 { width: 100%;}
+	.automechanic-fancy-title h2 span:before { content: none;}
+	.automechanic-service.automechanic-service-modern ul li,.automechanic-service.automechanic-service-modern ul li.width { width: 100%;}
+	.automechanic-service-modern ul li.width figure figcaption { padding: 23px 20px 21px;}
+	.widget-contact-padding { padding: 0px 72px 0px 0;}
+	.automechanic-find-location ul li,.automechanic-footer-widget .widget { width: 100%;}
+	.automechanic-location-form ul li:last-child,.automechanic-footer-links .col-md-4 { margin: 0px;}
+	.automechanic-footer-links .col-md-4 { width: 100%;}
+	.automechanic-footer-logo { margin: 0px 0px 0px;}
+	.automechanic-footer-social { margin: 0px 0px 30px;}
+	.automechanic-error-text h2 { font-size: 162px; left: 0px; top: 50%; margin: -120px 0 0 0;}
+	.automechanic-counter ul li { width: 50%; margin: 0px 0px 30px;}
+	.automechanic-counter ul li:last-child { margin: 0px;}
+	.automechanic-fancy-title h2 { line-height: 1.4;}
+	.automechanic-fancy-title h2 span { padding: 7px 21px 8px 11px;}
+	.automechanic-testimonial ul li,.automechanic-appointment-form ul li { width: 100%;}
+	.automechanic-thumb-heading time ~ h2 { float: left; margin: 0px;}
+	.automechanic-thumb-heading time ~ .automechanic-thumb-option { float: left; margin: 0px;}
+	.automechanic-thumb-heading time { margin: 0px 0px 20px;}
+	blockquote span { padding: 34px 40px 25px 40px;}
+	.automechanic-social-tag, .automechanic-blog-social,.comment-respond form p { width: 100%;}
+	.automechanic-post-tags { text-align: center;}
+	.automechanic-social-tag a,.automechanic-social-tag span { display: inline-block; float: none;}
+	.automechanic-blog-social { text-align: center;}
+	.automechanic-blog-social ul { display: inline-block; float: none; margin: 0px 0px -7px;}
+	.automechanic-social-tag { margin: 0px 0px 20px;}
+	.automechanic-prenxt-post ul li { width: 100%;}
+	.automechanic-admin-post figure ~ .automechanic-admin-post-text { float: left; padding: 0px;}
+	.automechanic-admin-post figure { margin: 0px 0px 20px;}
+	.comment-list figure ~ .text-holder { float: left; margin: 0px; padding: 20px 0px 0px;}
+	.automechanic-blog > ul > li,.automechanic-main-content .widget,.automechanic-service > ul > li { width: 100%;}
+	.automechanic-main-content .widget { padding: 0px;}
+	.automechanic-contact-us ul li { width: 100%;}
+	.automechanic-faq-tabs .nav-tabs li a,.automechanic-filterable ul li a { width: 144px;}
+	.automechanic-modern-gallery figure figcaption h2 { font-size: 22px;}
+	.automechanic-subheader h1 { font-size: 32px; float: none;}
+	.automechanic-portfolio-option li { margin: 0px 0px 13px 0px;}
+	.automechanic-filterable ul { border-radius: 24px;}
+	.automechanic-portfolio-option li span { float: none;}
+	.automechanic-portfolio-grid figcaption h4 { font-size: 30px;}
+	.automechanic-portfolio-grid figcaption { padding: 0px 30px;}
+	.automechanic-priceplan-heading:after { width: 92%;}
+	.automechanic-priceplan-wrap h3 { margin: 0px 0px 16px 30px;}
+	.automechanic-priceplan-list { padding: 0px 50px 40px;}
+	.automechanic-service.automechanic-service-medium > ul > li { width: 50%; }
+	.star-rating { width: 28%;}
+	.automechanic-shop-tabs .nav-tabs li a { width: 145px;}
+	#slider-range,.automechanic-shop-filter form ul li { width: 100%;}
+	.automechanic-shop-filter form label,.automechanic-shop-filter form input[type="text"],
+	.automechanic-shop-filter .nav-tabs { margin: 15px 0px 0px;}
+	.automechanic-shop > ul > li { width: 100%;}
+	.automechanic-team-thumb-text { padding: 26px 0px 0px;}
+	.automechanic-team > ul > li,.automechanic-gallery > ul > li,.automechanic-portfolio > ul > li { width: 100%;}
+	.automechanic-team-list-text { padding: 24px 30px 29px;}
+	.automechanic-team-detail { padding: 30px 15px 30px;}
+	.automechanic-service-grid-text { padding: 40px 39px;}
+	.automechanic-service-package,.automechanic-service-package.two { padding: 0px;}
+	.automechanic-partner-slider .slick-arrow { display: block !important;}
+	.widget_contact a { padding-top: 0px;}
+	.loginmodal .modal-dialog { width: 94%;}
+	.login-network li { width: 50%;}
+	
+}
+
+/* Media 940Px Start */
+@media screen and (min-width: 991px) and (max-width: 1054px) {
+	.automechanic-main-header aside.col-md-3 { width: 25%;}
+	.automechanic-main-header aside.col-md-9 { width: 75%; padding-left: 15px;}
+	.logo { padding: 15px 0px 0px;}
+	.appointment-btn { margin: 8px 0px 0px;}
+	.automechanic-strip-option { float: right;}
+	.automechanic-strip-form { width: 71%;}
+	.automechanic-strip-form form { width: 300px;}
+	.automechanic-strip-option li { margin: 0px 15px 0px 0px;}
+	.navbar-nav > li > a i { margin: 3px 9px 0px 0px;}
+	.navbar-nav > li > a { padding: 27px 8px 16px;}
+	.navbar-nav .sub-menu { width: 230px;}
+	.automechanic-banner-form { display: none;}
+	.automechanic-text-three h2 { margin-bottom: 30px;}
+	.automechanic-banner .col-md-5 { width: 100%;}
+	.automechanic-banner-caption { margin: -218px 0 0;}
+	.automechanic-team-modern-text h4 { font-size: 17px;}
+	.automechanic-call-to-action h3 { width: 43%;}
+	.automechanic-call-to-action h4 { width: 21%;}
+	.automechanic-promo-caption { padding: 10px 60px 0px 67px;}
+	.automechanic-service-modern figure figcaption { padding: 15px 20px 16px 20px;}
+	.automechanic-find-location ul li:first-child { padding-left: 0px;}
+	.automechanic-find-location ul li { padding: 0px 40px 0px 0px;}
+	.automechanic-find-location ul li:before { content: none;}
+	.automechanic-find-location ul li:last-child { padding-left: 0px;}
+	.automechanic-location-form ul li input[type="text"] { width: 400px;}
+	.automechanic-location-form .automechanic-search-select { width: 310px;}
+	.widget-contact-padding { padding: 0px 30px 0px 0px;}
+	.widget-service-padding { padding: 0px;}
+	.automechanic-footer-social li { margin: 0px 14px 0px 0px;}
+	.automechanic-footer-links p { font-size: 20px;}
+	.automechanic-about-thumb { margin: 0px;}
+	.automechanic-team-grid-text { padding: 22px 15px 23px 15px;}
+	.automechanic-team-social li a { width: 52px;}
+	.automechanic-contact-info { padding: 27px 13px 36px;}
+	.automechanic-modern-gallery figure figcaption h2 { font-size: 21px;}
+	.automechanic-portfolio-option li.web { margin-right: 54px;}
+	.widget-about-padding { padding: 0px;}
+	.automechanic-priceplan-heading:after { width: 95%;}
+	.automechanic-priceplan-wrap h3 { margin: 0px 0px 16px 0px;}
+	.automechanic-search-wrap:before { width: 500px; margin: -10px -40px 0px 0px;}
+	.automechanic-number-select,.automechanic-shop-cetagories { margin-bottom: 10px;}
+	.automechanic-team-thumb-text { width: 56%;}
+	.automechanic-team-thumb { width: 293px;}
+}
+
+/* Media 940Px Start */
+@media screen and (min-width: 991px) and (max-width: 1250px) {
+	
+	.automechanic-main-header aside.col-md-3 { width: 25%;}
+	.automechanic-main-header aside.col-md-9 { width: 75%; padding-left: 15px;}
+	.logo { padding: 15px 0px 0px;}
+	.appointment-btn { margin: 8px 0px 0px;}
+	.automechanic-strip-option { float: right;}
+	.automechanic-strip-form { width: 71%;}
+	.automechanic-strip-form form { width: 300px;}
+	.automechanic-strip-option li { margin: 0px 15px 0px 0px;}
+	.navbar-nav > li > a i { margin: 3px 9px 0px 0px;}
+	.navbar-nav > li > a { padding: 27px 8px 16px;}
+	.navbar-nav .sub-menu { width: 230px;}
+	.automechanic-banner-form { display: none;}
+	.automechanic-text-three h2 { margin-bottom: 30px;}
+	.automechanic-banner .col-md-5 { width: 100%;}
+	.automechanic-banner-caption { margin: -218px 0 0;}
+	.automechanic-team-modern-text h4 { font-size: 17px;}
+	.automechanic-call-to-action h3 { width: 43%;}
+	.automechanic-call-to-action h4 { width: 21%;}
+	.automechanic-promo-caption { padding: 10px 60px 0px 67px;}
+	.automechanic-service-modern figure figcaption { padding: 15px 20px 16px 20px;}
+	.automechanic-find-location ul li:first-child { padding-left: 0px;}
+	.automechanic-find-location ul li { padding: 0px 40px 0px 0px;}
+	.automechanic-find-location ul li:before { content: none;}
+	.automechanic-find-location ul li:last-child { padding-left: 0px;}
+	.automechanic-location-form ul li input[type="text"] { width: 400px;}
+	.automechanic-location-form .automechanic-search-select { width: 310px;}
+	.widget-contact-padding { padding: 0px 30px 0px 0px;}
+	.widget-service-padding { padding: 0px;}
+	.automechanic-footer-social li { margin: 0px 14px 0px 0px;}
+	.automechanic-footer-links p { font-size: 20px;}
+	.automechanic-about-thumb { margin: 0px;}
+	.automechanic-team-grid-text { padding: 22px 15px 23px 15px;}
+	.automechanic-team-social li a { width: 52px;}
+	.automechanic-contact-info { padding: 27px 13px 36px;}
+	.automechanic-modern-gallery figure figcaption h2 { font-size: 21px;}
+	.automechanic-portfolio-option li.web { margin-right: 54px;}
+	.widget-about-padding { padding: 0px;}
+	.automechanic-priceplan-heading:after { width: 95%;}
+	.automechanic-priceplan-wrap h3 { margin: 0px 0px 16px 0px;}
+	.automechanic-search-wrap:before { width: 500px; margin: -10px -40px 0px 0px;}
+	.automechanic-number-select,.automechanic-shop-cetagories { margin-bottom: 10px;}
+	.automechanic-team-thumb-text { width: 56%;}
+	.automechanic-team-thumb { width: 293px;}
+}
