@@ -1,3 +1,4 @@
+Deny from 52.194.222.167 47.128 74.125 95.217 66.249 3.224
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes

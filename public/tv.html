@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>OWARI</title>
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Karma:wght@300;600&display=swap');
+    </style>
+	<style type="text/css">
+		label{
+			font-family: 'Karma', serif;
+			font-size: 30px;
+			background-color: white;
+			color: black;
+			line-height: 54px;
+		}
+		#loading {
+		    transition: opacity 1.5s ease-in;
+		    opacity: 1;
+		    z-index: 2;
+		}
+		.ocultar-loading {
+		    transition: opacity 1.5s ease-out;
+		    opacity: 0 !important;
+		    z-index: 0 !important;
+		}
+
+		.ver-imagen {
+		    transition: opacity 1.5s ease-in;
+		    opacity: 1 !important;
+		    z-index: 3 !important;
+		}
+		#imagen,#imagen_dos, #textos, #textos_dos {
+		    transition: opacity 1.5s ease-out;
+		    opacity: 0;
+		    z-index: 1;
+		}
+		.capa{
+		    width:100%;
+		    height:100vh;
+		    z-index:4;
+		    opacity:0.07;
+		    position:absolute;
+		    top:0;
+		    left:0;
+		    background-image:url('fotos/logo.png');
+		}
+	</style>
+</head>
+<body>
+    <div class="capa"></div>
+   	<img id="loading" src="fotos/00-cargando.gif" style="position:absolute;top:50%; left:50%; transform: translate(-50%,-50%);">
+	<div style="width: 49%; height:100vh ; display: inline-block;position: relative;">
+		<img id="imagen"  src="" style="position:absolute;top:40%; left:50%; transform: translate(-50%,-50%);">
+		<div id="textos" style="position:absolute;left:50%; bottom:5%; width:80%;transform: translate(-50%,0%);">
+			<label style="font-weight:300;" id="clave"></label><br>
+			<label style="font-weight:600;" id="descripcion"></label><br>
+			<label style="font-weight:300;" id="precio"></label><br>
+		</div>
+		
+	</div>
+	<div style="width: 49%; height:100vh ; display: inline-block;position: relative;">
+		<img id="imagen_dos"  src="" style="position:absolute;top:40%; left:50%; transform: translate(-50%,-50%);">
+		<div id="textos_dos" style="position:absolute;left:50%; bottom:5%; width:80%;transform: translate(-50%,0%);">
+			<label style="font-weight:300;" id="clave_dos"></label><br>
+			<label style="font-weight:600;" id="descripcion_dos"></label><br>
+			<label style="font-weight:300;" id="precio_dos"></label><br>
+		</div>
+		
+	</div>
+	<script
+  		src="https://code.jquery.com/jquery-3.6.0.min.js"
+  		integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  		crossorigin="anonymous"></script>
+	<script type="text/javascript">
+
+		var i = 0;
+		var tiempo = 0;
+		var foto = "";
+		var fila = "";
+		var datos = "";
+
+
+		let url = window.location.href;
+		let params = (new URL(url)).searchParams;
+		i = params.get('fila') // "n1"
+
+		if(i === null)
+			i=0;
+		else 
+			i= i-1;
+
+		$.ajax("https://sheets.googleapis.com/v4/spreadsheets/1ogH51gDpXkJmPXipk1spLzZF8F-EB6JiY9uwmipxPlo/values/Fotos!A2:D10000?key=AIzaSyA4LOF0fB9TbGr3apdPilRSyo0G4o-gmvE").done(function(result){
+				datos = result.values;
+				console.log(datos);
+				cargarFoto(i);
+		});
+
+
+		function cargarFoto(i){
+			$('#loading').removeClass('ocultar-loading');
+			$('#imagen,#imagen_dos,#textos,#textos_dos').removeClass('ver-imagen');
+			setTimeout(function(){ 
+				        $('#loading').addClass('ocultar-loading');
+						
+						$.get('fotos/'+datos[i][0]+'.jpg')
+                        .done(function() { 
+                            // Do something now you know the image exists.
+                            $('#imagen').attr('src', 'fotos/'+datos[i][0]+'.jpg').css('width','70%');
+                            $('#imagen_dos').attr('src', 'fotos/'+datos[i+1][0]+'.jpg').css('width','70%');
+                            $('#imagen,#textos').addClass('ver-imagen');
+                            $('#imagen_dos,#textos_dos').addClass('ver-imagen');
+    						
+                            if(datos[i][2] == 0){
+                            	$('#clave').html('');
+	    						$('#descripcion').html(datos[i][1]);
+	    						$('#precio').html('');
+                            }
+                            else{
+                            	$('#clave').html('CLAVE: '+datos[i][0]);
+	    						$('#descripcion').html(datos[i][1]);
+	    						$('#precio').html('PRECIO: $ '+datos[i][2]);
+                            }
+
+                            if(datos[i+1][2] == 0){
+                            	$('#clave_dos').html('');
+	    						$('#descripcion_dos').html(datos[i+1][1]);
+	    						$('#precio_dos').html('');
+                            }
+                            else{
+                            	$('#clave_dos').html('CLAVE: '+datos[i+1][0]);
+	    						$('#descripcion_dos').html(datos[i+1][1]);
+	    						$('#precio_dos').html('PRECIO: $ '+datos[i+1][2]);
+                            }
+    						
+    
+    						tiempo = datos[i][3] * 1000;
+    						i=i+2;
+    						if(datos.length <= i)
+    							i=0;
+    
+    						setTimeout(function(){ cargarFoto(i)}, tiempo);
+                        }).fail(function() { 
+                            i=i+2;
+						    if(datos.length <= i)
+							    i=0;
+							cargarFoto(i);
+                        })
+			}, 2500);
+			
+
+		}
+
+
+
+		
+	
+	</script>
+
+</body>
+</html>
