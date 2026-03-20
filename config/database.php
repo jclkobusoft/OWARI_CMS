@@ -67,6 +67,19 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        'owari_soma' => [
+            'driver' => 'pgsql',
+            'host' => env('SOMA_DB_HOST', '127.0.0.1'),
+            'port' => env('SOMA_DB_PORT', '5432'),
+            'database' => env('SOMA_DB_DATABASE', 'owari_soma'),
+            'username' => env('SOMA_DB_USERNAME', 'forge'),
+            'password' => env('SOMA_DB_PASSWORD', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'schema' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'host' => env('DB_HOST', 'localhost'),

@@ -72,12 +72,6 @@
                                         @endif
                                     </p>
                                    
-                                    <p>
-                                        @if($producto->extra != "")
-                                            {{$producto->extra}}
-                                        @endif
-                                    </p>
-
                                     <ul class="products-info">
                                     	
                                     	@if($producto->descripcion_1 != "")
@@ -120,25 +114,18 @@
                                             <span></span>
                                         </button>
                                     </div>-->
-                                    @if($producto->extra_clave_1 != "" || $producto->extra_clave_2 != "" || $producto->extra_clave_3 != "")
+                                    @php
+                                        $equivConMarca = collect($equivalencias)->filter(fn($e) => $e->id_marca > 0);
+                                        $equivSinMarca = collect($equivalencias)->filter(fn($e) => !$e->id_marca || $e->id_marca == 0);
+                                    @endphp
+                                    @if($equivConMarca->count() > 0)
                                     <br><br><h5>Mismo producto, en otras marcas:</h5>
                                     <ul class="products-info">
-                                        @if($producto->extra_clave_1 != "")
+                                        @foreach($equivConMarca as $eq)
                                             <li>
-                                                <a href="{{route('pagina.detalles_producto',$producto->extra_clave_1)}}">{{$producto->extra_marca_1}} - {{$producto->extra_clave_1}}</a>
+                                                <a href="{{route('pagina.detalles_producto',$eq->clave)}}">{{$eq->marca}} - {{$eq->clave}}</a>
                                             </li>
-                                        @endif
-                                        @if($producto->extra_clave_2 != "")
-                                            <li>
-                                                <a href="{{route('pagina.detalles_producto',$producto->extra_clave_2)}}">{{$producto->extra_marca_2}} - {{$producto->extra_clave_2}}</a>
-                                            </li>
-                                        @endif
-                                        @if($producto->extra_clave_3 != "")
-                                            <li>
-                                                <a href="{{route('pagina.detalles_producto',$producto->extra_clave_3)}}">{{$producto->extra_marca_3}} - {{$producto->extra_clave_3}}</a>
-                                            </li>
-                                        @endif
-                                       
+                                        @endforeach
                                     </ul>
                                     @endif
                                 </div>
@@ -265,38 +252,15 @@
                             </ul>
                         </section>
 
-                        @if($producto->equivalencia_1 != "" ||$producto->equivalencia_1 != "" || $producto->equivalencia_1 != "" || $producto->equivalencia_1 != "" || $producto->equivalencia_1 != "")
+                        @if($equivSinMarca->count() > 0)
                             <section class="widget widget_categories">
                                 <h3 class="widget-title">Equivalencias</h3>
-
                                 <ul>
-                                    @if($producto->equivalencia_1 != "")
+                                    @foreach($equivSinMarca as $equiv)
                                         <li>
-                                            <span>{{$producto->equivalencia_1}}</span>
+                                            <span>{{$equiv->clave}}</span>
                                         </li>
-                                    @endif
-
-                                    @if($producto->equivalencia_2 != "")
-                                        <li>
-                                            <span>{{$producto->equivalencia_2}}</span>
-                                        </li>
-                                    @endif
-                                    @if($producto->equivalencia_3 != "")
-                                        <li>
-                                            <span>{{$producto->equivalencia_3}}</span>
-                                        </li>
-                                    @endif
-                                    @if($producto->equivalencia_4 != "")
-                                        <li>
-                                            <span>{{$producto->equivalencia_4}}</span>
-                                        </li>
-                                    @endif
-                                    @if($producto->equivalencia_5 != "")
-                                        <li>
-                                            <span>{{$producto->equivalencia_5}}</span>
-                                        </li>
-                                    @endif
-
+                                    @endforeach
                                 </ul>
                             </section>
                         @endif

@@ -8,6 +8,7 @@ use App\Models\Catalogos;
 use App\Models\DatosGenerales;
 use App\Models\Marca;
 use App\Models\ProductoBusqueda;
+use App\Models\SomaResult;
 use Illuminate\Http\Request;
 
 class WebController extends Controller {
@@ -29,7 +30,12 @@ class WebController extends Controller {
 		$marcas = Marca::orderBy('ordenamiento', 'asc')->get();
 		$catalogos = Catalogos::orderBy('ordenamiento', 'asc')->limit(4)->get();
 		$boletines = Boletines::orderBy('id', 'desc')->limit(12)->get();
-		$productos = ProductoBusqueda::select('codigo_nikko', 'descripcion_1')->where('pagina_principal', 1)->get();
+		$productos = $this->somaSelect("
+			SELECT p.clave as codigo_nikko, pw.descripcion_1
+			FROM productos p
+			LEFT JOIN productos_web pw ON p.id = pw.id_producto AND pw.deleted_at IS NULL
+			WHERE pw.mostrar_pagina_principal = true AND p.deleted_at IS NULL
+		");
 
 		$titulo = "Home";
 
@@ -92,18 +98,23 @@ class WebController extends Controller {
 
 		/*tipos de busqueda*/
 		$busqueda = "";
+		$tipo_busqueda = "";
+		$param_busqueda = "";
 		if (isset($c)) {
-			$query = $this->query('categoria', $q);
+			$tipo_busqueda = 'categoria';
+			$param_busqueda = $q;
 			$busqueda = "Resultados por CATEGORIA: " . $q;
 			$peticion = "?q=" . $q . "&c=" . $c . "&p=";
 
 		} else if (isset($a)) {
-			$query = $this->query('autocompletar', $q);
+			$tipo_busqueda = 'autocompletar';
+			$param_busqueda = $q;
 			$busqueda = "Resultados para: " . $q;
 			$peticion = "?q=" . $q . "&a=" . $a . "&p=";
 		} else if (isset($f)) {
 			$busqueda = "Resultados para busqueda por filtrado";
-			$q = [
+			$tipo_busqueda = 'filtro';
+			$param_busqueda = [
 				"ano" => $ano,
 				"marca" => $marca,
 				"modelo" => $modelo,
@@ -111,32 +122,65 @@ class WebController extends Controller {
 				"grupo" => $grupo,
 				"familia" => $familia,
 			];
-			$query = $this->query('filtro', $q);
-			$peticion = "?q=" . $q . "&c=" . $c . "&p=";
+			$peticion = "?f=1&ano=" . $ano . "&marca=" . $marca . "&modelo=" . $modelo . "&motor=" . $motor . "&grupo=" . $grupo . "&familia=" . $familia . "&p=";
 		} else if ($q == "") {
-			$query = $this->query('todos', $q);
+			$tipo_busqueda = 'todos';
+			$param_busqueda = $q;
 			$busqueda = "Todos los productos";
 			$peticion = "?q=" . $q . "&p=";
 		} else {
 			if($q == "LO MAS NUEVO" || $q == "lo mas nuevo" || $q == "nuevo" || $q == "NUEVO"){
-				$query = $this->query('nuevo', $q);
+				$tipo_busqueda = 'nuevo';
+				$param_busqueda = $q;
 			}
 			elseif (stripos($q, ' ') !== false) {
-				$query = $this->query('palabras', $q);
+				$tipo_busqueda = 'palabras';
+				$param_busqueda = $q;
 			} else {
-				// Normalizar: quitar guiones y caracteres especiales para buscar en buscador/codigosinguiones
-				$q_normalizado = preg_replace('/[^A-Za-z0-9]/', '', $q);
-				$query = $this->query('palabra', $q_normalizado);
+				$tipo_busqueda = 'palabra';
+				$param_busqueda = preg_replace('/[^A-Za-z0-9]/', '', $q);
 			}
 
 			$busqueda = "Resultados para: " . $q;
 			$peticion = "?q=" . $q . "&p=";
 		}
-		$resultados = \DB::select($query);
-		$resultados = array_intersect_key($resultados, array_unique(array_column($resultados, 'codigo_nikko')));
+		list($querySql, $queryBindings) = $this->querySoma($tipo_busqueda, $param_busqueda);
+		$resultados = $this->somaSelect($querySql, $queryBindings);
+
+		// Deduplicar por codigo_nikko (la vista tiene una fila por producto×aplicación)
+		$vistos = [];
+		$unicos = [];
+		foreach ($resultados as $r) {
+			if (!isset($vistos[$r->codigo_nikko])) {
+				$vistos[$r->codigo_nikko] = true;
+				$unicos[] = $r;
+			}
+		}
+		$resultados = $unicos;
 		$total_resultados = count($resultados);
 		$offset = ($p - 1) * 50;
 		$resultados = array_slice($resultados, $offset, 50);
+
+		// Cargar equivalencias de los resultados de esta página (1 solo query)
+		$productoIds = array_filter(array_map(function($r) { return $r->producto_id; }, $resultados));
+		if (!empty($productoIds)) {
+			$placeholders = implode(',', array_fill(0, count($productoIds), '?'));
+			$equivRows = $this->somaSelect(
+				"SELECT id_producto, clave FROM productos_equivalencias WHERE id_producto IN ({$placeholders}) AND deleted_at IS NULL ORDER BY id",
+				array_values($productoIds)
+			);
+			$equivMap = [];
+			foreach ($equivRows as $eq) {
+				$equivMap[$eq->id_producto][] = $eq->clave;
+			}
+			foreach ($resultados as $r) {
+				$r->equivalencias = $equivMap[$r->producto_id] ?? [];
+			}
+		} else {
+			foreach ($resultados as $r) {
+				$r->equivalencias = [];
+			}
+		}
 
 		$productos = [];
 		foreach ($resultados as $resultado) {
@@ -144,17 +188,6 @@ class WebController extends Controller {
 		}
 
 		$url = 'https://sistemasowari.com:8443/catalowari/api/productos-existencias?' . http_build_query(["productos" => $productos]);
-		//dd($url);
-		/*$ch = curl_init();
-			        curl_setopt($ch, CURLOPT_URL, $url);
-			        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			        curl_setopt($ch, CURLOPT_HEADER, 0);
-			        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
-			        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-			        $data = curl_exec($ch);
-			        curl_close($ch);
-			        $existencias = json_encode($data,true);
-		*/
 		$existencias = [];
 		$botones = [];
 		if ($total_resultados / 50 > 10) {
@@ -180,40 +213,102 @@ class WebController extends Controller {
 		$clave = str_replace('_', '/', $clave);
 		$clave = str_replace('+', '#', $clave);
 		$titulo = "Producto: " . $clave;
-		$producto = ProductoBusqueda::where('codigo_nikko', $clave)->first();
-		if(!$producto){
-			 return "El producto no existe";
-		}
-		$especificaciones = ProductoBusqueda::where('codigo_nikko', $clave)->orderBy('armadora','asc')->orderBy('modelo','ASC')->get();
-		$relacionados = ProductoBusqueda::where('modelo', $producto->modelo)->get()->toArray();
-		$relacionados = array_intersect_key($relacionados, array_unique(array_column($relacionados, 'codigo_nikko')));
-		$relacionados = array_slice($relacionados, 0, 8);
 
-		$especificaciones_extra = [];
-		if ($producto->extra_clave_1 != "") {
-			$aux = ProductoBusqueda::where('codigo_nikko', $producto->extra_clave_1)->get();
-			$especificaciones_extra = $aux;
-		}
-		if ($producto->extra_clave_2 != "") {
-			$aux = ProductoBusqueda::where('codigo_nikko', $producto->extra_clave_2)->get();
-			if ($especificaciones_extra) {
-				$especificaciones_extra = $aux->merge($especificaciones_extra);
-			} else {
-				$especificaciones_extra = $aux;
-			}
+		// Obtener producto principal
+		$productoArr = $this->somaSelect("
+			SELECT
+				p.clave as codigo_nikko,
+				m.nombre as marca_comercial,
+				pw.grupo,
+				pw.subgrupo,
+				pw.descripcion_1,
+				pw.descripcion_2,
+				pw.descripcion_3,
+				pw.caracteristicas_1,
+				pw.caracteristicas_2,
+				pw.caracteristicas_3,
+				pw.caracteristicas_4,
+				pw.oem,
+				COALESCE(ppr.precio, 0) as precio_normal,
+				COALESCE(p.prioridad, 0) as ventas
+			FROM productos p
+			LEFT JOIN productos_web pw ON p.id = pw.id_producto AND pw.deleted_at IS NULL
+			LEFT JOIN marcas m ON p.id_marca = m.id AND m.deleted_at IS NULL
+			LEFT JOIN productos_precios ppr ON p.id = ppr.id_producto AND ppr.id_lista_precios = 1 AND ppr.id_sucursal = 1 AND ppr.deleted_at IS NULL
+			WHERE p.clave = ? AND p.deleted_at IS NULL
+			LIMIT 1
+		", [$clave]);
 
+		if (empty($productoArr)) {
+			return "El producto no existe";
 		}
-		if ($producto->extra_clave_3 != "") {
-			$aux = ProductoBusqueda::where('codigo_nikko', $producto->extra_clave_3)->get();
-			if ($especificaciones_extra) {
-				$especificaciones_extra = $aux->merge($especificaciones_extra);
-			} else {
-				$especificaciones_extra = $aux;
-			}
+		$producto = $productoArr[0];
 
-		}
+		// Obtener especificaciones (aplicaciones vehiculares)
+		$especificaciones = $this->somaSelect("
+			SELECT
+				pa.armadora,
+				pa.modelo,
+				pa.ano_inicio as ano_inicial,
+				pa.ano_fin as ano_final,
+				pa.generacion_mexico,
+				pa.version,
+				pa.motor,
+				pa.especificacion
+			FROM productos_aplicaciones pa
+			INNER JOIN productos p ON pa.id_producto = p.id
+			WHERE p.clave = ? AND pa.deleted_at IS NULL AND p.deleted_at IS NULL
+			ORDER BY pa.armadora ASC, pa.modelo ASC
+		", [$clave]);
 
-		return view('web.ver_producto', compact('producto', 'especificaciones', 'relacionados', 'titulo', 'especificaciones_extra'));
+		// Obtener equivalencias con marca
+		$equivalencias = $this->somaSelect("
+			SELECT pe.clave, COALESCE(pe.id_marca, 0) as id_marca, COALESCE(m.nombre, '') as marca
+			FROM productos_equivalencias pe
+			INNER JOIN productos p ON pe.id_producto = p.id
+			LEFT JOIN marcas m ON pe.id_marca = m.id AND m.deleted_at IS NULL
+			WHERE p.clave = ? AND pe.deleted_at IS NULL AND p.deleted_at IS NULL
+			ORDER BY pe.id
+		", [$clave]);
+
+		// Productos relacionados: mismos modelos de auto
+		$relacionados = $this->somaSelect("
+			SELECT DISTINCT p2.clave as codigo_nikko, pw2.descripcion_1
+			FROM productos p2
+			LEFT JOIN productos_web pw2 ON p2.id = pw2.id_producto AND pw2.deleted_at IS NULL
+			INNER JOIN productos_aplicaciones pa2 ON p2.id = pa2.id_producto AND pa2.deleted_at IS NULL
+			WHERE pa2.modelo IN (
+				SELECT pa3.modelo FROM productos_aplicaciones pa3
+				INNER JOIN productos p3 ON pa3.id_producto = p3.id
+				WHERE p3.clave = ? AND pa3.deleted_at IS NULL AND p3.deleted_at IS NULL
+				AND pa3.modelo IS NOT NULL AND pa3.modelo != ''
+			)
+			AND p2.clave != ? AND p2.deleted_at IS NULL
+			LIMIT 8
+		", [$clave, $clave]);
+		// SomaResult soporta tanto $r->campo como $r['campo']
+
+		// Aplicaciones de productos equivalentes que existen en el ERP
+		$especificaciones_extra = $this->somaSelect("
+			SELECT DISTINCT
+				pa.armadora,
+				pa.modelo,
+				pa.ano_inicio as ano_inicial,
+				pa.ano_fin as ano_final,
+				pa.generacion_mexico,
+				pa.version,
+				pa.motor,
+				pa.especificacion
+			FROM productos_equivalencias pe
+			INNER JOIN productos p_origen ON pe.id_producto = p_origen.id AND p_origen.deleted_at IS NULL
+			INNER JOIN productos p_equiv ON pe.clave = p_equiv.clave AND p_equiv.deleted_at IS NULL
+			INNER JOIN productos_aplicaciones pa ON pa.id_producto = p_equiv.id AND pa.deleted_at IS NULL
+			WHERE p_origen.clave = ?
+			AND pe.deleted_at IS NULL
+			ORDER BY pa.armadora ASC, pa.modelo ASC
+		", [$clave]);
+
+		return view('web.ver_producto', compact('producto', 'especificaciones', 'equivalencias', 'relacionados', 'titulo', 'especificaciones_extra'));
 	}
 
 	public function contacto() {
@@ -222,343 +317,177 @@ class WebController extends Controller {
 	}
 
 	private function categorias() {
+		$rows = $this->somaSelect("
+			SELECT DISTINCT pw.grupo, pw.subgrupo
+			FROM productos_web pw
+			WHERE pw.deleted_at IS NULL
+			AND pw.grupo IS NOT NULL AND pw.grupo != ''
+			AND pw.subgrupo IS NOT NULL AND pw.subgrupo != ''
+			ORDER BY pw.grupo ASC, pw.subgrupo ASC
+		");
 
-		$grupos = ProductoBusqueda::select('grupo')->distinct()->orderBy('grupo', 'asc')->get();
 		$slider = [];
-
-		foreach ($grupos as $grupo) {
-			$slider[$grupo->grupo] = [];
-
-			$subgrupos = ProductoBusqueda::select('subgrupo')->where('grupo', $grupo->grupo)->distinct()->orderBy('subgrupo', 'asc')->get();
-			foreach ($subgrupos as $subgrupo) {
-				$slider[$grupo->grupo][] = $subgrupo->subgrupo;
+		foreach ($rows as $row) {
+			if (!isset($slider[$row->grupo])) {
+				$slider[$row->grupo] = [];
 			}
+			$slider[$row->grupo][] = $row->subgrupo;
 		}
 
 		return $slider;
-
 	}
 
 	private function resultadosCategoria($query) {
-
-		$grupos = ProductoBusqueda::select('grupo')->distinct()->get();
-		$slider = [];
-
-		foreach ($grupos as $grupo) {
-			$slider[$grupo->grupo] = [];
-
-			$subgrupos = ProductoBusqueda::select('subgrupo')->where('grupo', $grupo->grupo)->distinct()->get();
-			foreach ($subgrupos as $subgrupo) {
-				$slider[$grupo->grupo][] = $subgrupo->subgrupo;
-			}
-		}
-
-		return $slider;
-
+		return $this->categorias();
 	}
 
-	private function query($tipo_query, $string) {
+	/**
+	 * Ejecuta un SELECT en owari_soma y retorna array de SomaResult
+	 * (soportan acceso como objeto y como array, igual que Eloquent).
+	 */
+	private function somaSelect($sql, $bindings = []) {
+		$rows = \DB::connection('owari_soma')->select($sql, $bindings);
+		return collect($rows)->map(function($item) {
+			return new SomaResult((array) $item);
+		})->all();
+	}
+
+	/**
+	 * Construye queries contra productos_busqueda con JOINs a tablas reales.
+	 * - buscador_ts (tsvector con GIN) para busquedas multi-palabra
+	 * - buscador (text con trigram) para busquedas parciales/LIKE
+	 * - Datos de display vienen de productos, productos_web, marcas, productos_precios
+	 * Retorna [$sql, $bindings]
+	 */
+	private function querySoma($tipo_query, $string) {
+		$bindings = [];
+		$select = "SELECT
+				m.nombre as marca_comercial,
+				p.clave as codigo_nikko,
+				REPLACE(p.clave, '-', '') as codigosinguiones,
+				pw.grupo,
+				pw.subgrupo,
+				pw.descripcion_1,
+				pw.descripcion_2,
+				pw.descripcion_3,
+				pw.caracteristicas_1,
+				pw.caracteristicas_2,
+				pw.caracteristicas_3,
+				pw.caracteristicas_4,
+				pw.oem,
+				pb.armadora,
+				pb.modelo,
+				pb.ano_inicial,
+				pb.ano_final,
+				COALESCE(pw.nuevo, false) as nuevo,
+				COALESCE(pw.mas_vendido, false) as vendido,
+				COALESCE(pw.mostrar_pagina_principal, false) as pagina_principal,
+				COALESCE(ppr.precio, 0) as precio_normal,
+				COALESCE(ppr.precio, 0) as precio_final,
+				0 as minimo_compra_oferta,
+				COALESCE(p.prioridad, 0) as ventas,
+				0 as existencias,
+				p.id as producto_id
+			FROM productos_busqueda pb
+			INNER JOIN productos p ON pb.producto_id = p.id
+			LEFT JOIN productos_web pw ON p.id = pw.id_producto AND pw.deleted_at IS NULL
+			LEFT JOIN marcas m ON p.id_marca = m.id AND m.deleted_at IS NULL
+			LEFT JOIN productos_precios ppr ON p.id = ppr.id_producto AND ppr.id_lista_precios = 1 AND ppr.id_sucursal = 1 AND ppr.deleted_at IS NULL";
 
 		switch ($tipo_query) {
+
 		case 'categoria':
-			$query = "SELECT
-                            marca_comercial,
-                            codigo_nikko,
-                            grupo,
-                            subgrupo,
-                            descripcion_1,
-                            descripcion_2,
-                            descripcion_3,
-                            caracteristicas_1,
-                            caracteristicas_2,
-                            caracteristicas_3,
-                            caracteristicas_4,
-                            equivalencia_1,
-                            equivalencia_2,
-                            equivalencia_3,
-                            equivalencia_4,
-                            equivalencia_5,
-                            buscador,
-                            precio_normal,
-                            precio_final,
-                            existencias,
-                            minimo_compra_oferta
-                        FROM
-                            productos_busqueda
-                        WHERE
-                            subgrupo = '" . str_replace("_", " ", $string) . "'
-                            AND deleted_at is null
-					   ORDER BY ventas desc
-                            LIMIT 0,1000000000";
+			$sql = $select . " WHERE pb.subgrupo = ? ORDER BY pb.ventas DESC NULLS LAST";
+			$bindings = [str_replace("_", " ", $string)];
 			break;
 
 		case 'autocompletar':
-			$query = "SELECT
-                            marca_comercial,
-                            codigo_nikko,
-                            grupo,
-                            subgrupo,
-                            descripcion_1,
-                            descripcion_2,
-                            descripcion_3,
-                            caracteristicas_1,
-                            caracteristicas_2,
-                            caracteristicas_3,
-                            caracteristicas_4,
-                            equivalencia_1,
-                            equivalencia_2,
-                            equivalencia_3,
-                            equivalencia_4,
-                            equivalencia_5,
-                            buscador,
-                            precio_normal,
-                            precio_final,
-                            existencias,
-                            minimo_compra_oferta
-                        FROM
-                            productos_busqueda
-                        WHERE
-                            invocacion LIKE '%" . $string . "%'
-                            AND deleted_at is null
-					   ORDER BY ventas desc
-                            LIMIT 0,1000000000";
+			$sql = $select . " WHERE pb.buscador ILIKE ?
+				ORDER BY pb.ventas DESC NULLS LAST";
+			$bindings = ['%' . $string . '%'];
 			break;
 
 		case 'filtro':
 			$extra = "";
-			if ($q['ano'] != "0" && $q['ano'] != "todos") {
-				$extra .= " AND anos LIKE '%" . $q['ano'] . "%' ";
+			$bindings = [];
+
+			if (isset($string['ano']) && $string['ano'] != "0" && $string['ano'] != "todos") {
+				$extra .= " AND ?::int BETWEEN pb.ano_inicial AND pb.ano_final";
+				$bindings[] = $string['ano'];
+			}
+			if (isset($string['marca']) && $string['marca'] != "0" && $string['marca'] != "todos") {
+				$extra .= " AND pb.armadora = ?";
+				$bindings[] = $string['marca'];
+			}
+			if (isset($string['modelo']) && $string['modelo'] != "0" && $string['modelo'] != "todos") {
+				$extra .= " AND pb.modelo = ?";
+				$bindings[] = $string['modelo'];
+			}
+			if (isset($string['motor']) && $string['motor'] != "0" && $string['motor'] != "todos") {
+				$extra .= " AND pb.motor = ?";
+				$bindings[] = $string['motor'];
+			}
+			if (isset($string['grupo']) && $string['grupo'] != "0" && $string['grupo'] != "todos") {
+				$extra .= " AND pb.grupo = ?";
+				$bindings[] = $string['grupo'];
+			}
+			if (isset($string['familia']) && $string['familia'] != "0" && $string['familia'] != "todos") {
+				$extra .= " AND pb.subgrupo = ?";
+				$bindings[] = $string['familia'];
 			}
 
-			if ($q['marca'] != "0" && $q['marca'] != "todos") {
-				$extra .= " AND armadora = '" . $q['marca'] . "' ";
-			}
-
-			if ($q['modelo'] != "0" && $q['modelo'] != "todos") {
-				$extra .= " AND modelo = '" . $q['modelo'] . "' ";
-			}
-
-			if ($q['modelo'] != "0" && $q['motor'] != "todos") {
-				$extra .= " AND motor = '" . $q['motor'] . "' ";
-			}
-
-			if ($q['grupo'] != "0" && $q['grupo'] != "todos") {
-				$extra .= " AND grupo = '" . $q['grupo'] . "' ";
-			}
-
-			if ($q['familia'] != "0" && $q['familia'] != "todos") {
-				$extra .= " AND subgrupo = '" . $q['familia'] . "' ";
-			}
-
-			$query = "SELECT
-                        DISTINCT (codigo_nikko),
-                        marca_comercial,
-                        grupo,
-                        subgrupo,
-                        descripcion_1,
-                        descripcion_2,
-                        descripcion_3,
-                        caracteristicas_1,
-                        caracteristicas_2,
-                        caracteristicas_3,
-                        caracteristicas_4,
-                        equivalencia_1,
-                        equivalencia_2,
-                        equivalencia_3,
-                        equivalencia_4,
-                        equivalencia_5,
-                        pagina_principal,
-                        precio_normal,
-                        precio_final,
-                        existencias,
-                        minimo_compra_oferta
-                    FROM
-                        productos_busqueda
-                    WHERE deleted_at is null
-                    " . $extra . "
-                    ORDER BY ventas DESC";
+			$sql = $select . " WHERE 1=1" . $extra . " ORDER BY pb.ventas DESC NULLS LAST";
+			break;
 
 		case 'palabra':
-			$query = "SELECT
-                            marca_comercial,
-                            codigo_nikko,
-                            grupo,
-                            subgrupo,
-                            descripcion_1,
-                            descripcion_2,
-                            descripcion_3,
-                            caracteristicas_1,
-                            caracteristicas_2,
-                            caracteristicas_3,
-                            caracteristicas_4,
-                            equivalencia_1,
-                            equivalencia_2,
-                            equivalencia_3,
-                            equivalencia_4,
-                            equivalencia_5,
-                            buscador,
-                            precio_normal,
-                            precio_final,
-                            existencias,
-                            minimo_compra_oferta,
-                            extra_clave_1,
-                            extra_clave_2,
-                            extra_clave_3,
-					   especial,
-					   disponibilidad
-                        FROM
-                            productos_busqueda
-                        WHERE
-                            buscador LIKE '%" . $string . "%' or codigo_nikko = '".$string."' or codigosinguiones = '".$string."'
-                            AND deleted_at is null order by ventas desc";
+			// Una sola palabra: usar ILIKE para busqueda parcial (como LIKE pero case-insensitive)
+			$sql = $select . " WHERE pb.buscador ILIKE ?
+				ORDER BY pb.ventas DESC NULLS LAST";
+			$bindings = ['%' . $string . '%'];
 			break;
+
 		case 'nuevo':
-			$query = "SELECT
-			marca_comercial,
-			codigo_nikko,
-			grupo,
-			subgrupo,
-			descripcion_1,
-			descripcion_2,
-			descripcion_3,
-			caracteristicas_1,
-			caracteristicas_2,
-			caracteristicas_3,
-			caracteristicas_4,
-			equivalencia_1,
-			equivalencia_2,
-			equivalencia_3,
-			equivalencia_4,
-			equivalencia_5,
-			buscador,
-			precio_normal,
-			precio_final,
-			existencias,
-			minimo_compra_oferta,
-			extra_clave_1,
-			extra_clave_2,
-			extra_clave_3,
-			especial
-			FROM
-			productos_busqueda
-			WHERE
-			lo_mas_nuevo != ''
-			AND deleted_at is null order by ventas desc";
+			$sql = $select . " WHERE pb.nuevo = true ORDER BY pb.ventas DESC NULLS LAST";
 			break;
+
 		case 'todos':
-			$query = "SELECT
-                                marca_comercial,
-                                codigo_nikko,
-                                grupo,
-                                subgrupo,
-                                descripcion_1,
-                                descripcion_2,
-                                descripcion_3,
-                                caracteristicas_1,
-                                caracteristicas_2,
-                                caracteristicas_3,
-                                caracteristicas_4,
-                                equivalencia_1,
-                                equivalencia_2,
-                                equivalencia_3,
-                                equivalencia_4,
-                                equivalencia_5,
-                                buscador,
-                                precio_normal,
-                                precio_final,
-                                existencias,
-                                minimo_compra_oferta,
-						  especial
-                            FROM
-                                productos_busqueda
-                            WHERE deleted_at is null
-                            ORDER BY ventas desc, descripcion_1 asc, especial asc";
+			$sql = $select . " ORDER BY pb.ventas DESC NULLS LAST, pw.descripcion_1 ASC NULLS LAST";
 			break;
+
 		case 'palabras':
-
-				$palabras = explode(" ", $string);
-				$buscar = "";
-				foreach ($palabras as $key => $value) {
-					// code..
-					$buscar.="+".$value."*";
-				}
-
-			$query = "SELECT
-                    marca_comercial,
-                    codigo_nikko,
-                    grupo,
-                    subgrupo,
-                    descripcion_1,
-                    descripcion_2,
-                    descripcion_3,
-                    caracteristicas_1,
-                    caracteristicas_2,
-                    caracteristicas_3,
-                    caracteristicas_4,
-                    equivalencia_1,
-                    equivalencia_2,
-                    equivalencia_3,
-                    equivalencia_4,
-                    equivalencia_5,
-                    precio_normal,
-                    precio_final,
-                    existencias,
-                    minimo_compra_oferta,
-                    buscador,
-                    extra_clave_1,
-                    extra_clave_2,
-                    extra_clave_3,
-				especial,
-                    MATCH (buscador) AGAINST ('".trim($buscar)."' IN BOOLEAN MODE) AS score
-                FROM
-                    productos_busqueda
-                WHERE
-                    MATCH (buscador) AGAINST ('".trim($buscar)."' IN BOOLEAN MODE) 
-                    AND deleted_at is null
-                ORDER BY score desc, ventas desc";
+		case 'palabras_pedidos':
+			// Multi-palabra: usar ILIKE para cada palabra (substring match como MySQL)
+			// "cable bujia chevy" → WHERE buscador ILIKE '%cable%' AND buscador ILIKE '%bujia%' AND buscador ILIKE '%chevy%'
+			$palabras = array_filter(explode(" ", trim($string)));
+			$where = [];
+			$bindings = [];
+			foreach ($palabras as $p) {
+				$where[] = "pb.buscador ILIKE ?";
+				$bindings[] = '%' . $p . '%';
+			}
+			$sql = $select . " WHERE " . implode(' AND ', $where) . "
+				ORDER BY pb.ventas DESC NULLS LAST";
 			break;
-			case 'palabras_pedidos':
-			$query = "SELECT
-                    marca_comercial,
-                    codigo_nikko,
-                    grupo,
-                    subgrupo,
-                    descripcion_1,
-                    descripcion_2,
-                    descripcion_3,
-                    caracteristicas_1,
-                    caracteristicas_2,
-                    caracteristicas_3,
-                    caracteristicas_4,
-                    equivalencia_1,
-                    equivalencia_2,
-                    equivalencia_3,
-                    equivalencia_4,
-                    equivalencia_5,
-                    precio_normal,
-                    precio_final,
-                    existencias,
-                    minimo_compra_oferta,
-                    buscador,
-                    extra_clave_1,
-                    extra_clave_2,
-                    extra_clave_3,
-				especial,
-				disponibilidad
-                FROM
-                    productos_busqueda
-                WHERE
-                    buscador like '%" . str_replace(" ", "%", trim($string)) . "%'
-                    AND deleted_at is null order by ventas desc";
+
+		default:
+			$sql = $select . " ORDER BY pb.ventas DESC NULLS LAST";
 			break;
 		}
-		return $query;
+
+		return [$sql, $bindings];
 	}
 
 	public function autocompletar(Request $request) {
-		extract($request->all());
-		$consulta = "SELECT texto as value, texto as data FROM autocompletar WHERE MATCH ( texto ) AGAINST ( '" . $query . "') LIMIT 15";
-		$resultados = \DB::select($consulta);
+		$query = $request->input('query', '');
+		$resultados = \DB::connection('owari_soma')->select("
+			SELECT DISTINCT pw.descripcion_1 as value, pw.descripcion_1 as data
+			FROM productos p
+			LEFT JOIN productos_web pw ON p.id = pw.id_producto AND pw.deleted_at IS NULL
+			WHERE (p.buscar @@ plainto_tsquery('simple', ?) OR pw.descripcion_1 ILIKE ? OR p.clave ILIKE ?)
+			AND p.deleted_at IS NULL
+			AND pw.descripcion_1 IS NOT NULL
+			LIMIT 15
+		", [$query, '%' . $query . '%', '%' . $query . '%']);
 		return json_encode(["query" => $query, "suggestions" => $resultados]);
 	}
 
@@ -567,49 +496,42 @@ class WebController extends Controller {
 	}
 
 	public function filtrosCatalogos() {
-		$lineas_distintas = ProductoBusqueda::select('grupo as grupo')->distinct()->orderby('grupo', 'asc')->get();
+		$lineas_distintas = $this->somaSelect("SELECT DISTINCT pw.grupo FROM productos_web pw WHERE pw.deleted_at IS NULL AND pw.grupo IS NOT NULL ORDER BY pw.grupo ASC");
 		$lineas = [];
 		foreach ($lineas_distintas as $linea) {
-			if ($linea->grupo == "" || $linea->grupo == NULL || $linea->grupo == "NULL") {
+			if ($linea->grupo == "" || $linea->grupo == NULL) {
 				$lineas["NULL"] = "SIN GRUPO";
 			} else {
 				$lineas[$linea->grupo] = $linea->grupo;
 			}
-
 		}
 
-		$subgrupos_distintas = ProductoBusqueda::select('subgrupo as subgrupo')->distinct()->orderby('subgrupo', 'asc')->get();
+		$subgrupos_distintas = $this->somaSelect("SELECT DISTINCT pw.subgrupo FROM productos_web pw WHERE pw.deleted_at IS NULL AND pw.subgrupo IS NOT NULL ORDER BY pw.subgrupo ASC");
 		$subgrupos = [];
-		foreach ($subgrupos_distintas as $linea) {
-			if ($linea->subgrupo == "" || $linea->subgrupo == NULL || $linea->subgrupo == "NULL") {
+		foreach ($subgrupos_distintas as $sg) {
+			if ($sg->subgrupo == "" || $sg->subgrupo == NULL) {
 				$subgrupos["NULL"] = "SIN SUBGRUPO";
 			} else {
-				$subgrupos[$linea->subgrupo] = $linea->subgrupo;
+				$subgrupos[$sg->subgrupo] = $sg->subgrupo;
 			}
-
 		}
 
-		$marcas_distintas = ProductoBusqueda::select('marca_comercial')->distinct()->orderby('marca_comercial', 'asc')->get();
+		$marcas_distintas = $this->somaSelect("SELECT DISTINCT m.nombre as marca_comercial FROM marcas m WHERE m.deleted_at IS NULL AND m.nombre IS NOT NULL ORDER BY m.nombre ASC");
 		$marcas = [];
 		foreach ($marcas_distintas as $marca) {
-			if ($marca->marca_comercial == "" || $marca->marca_comercial == NULL || $marca->marca_comercial == "NULL") {
+			if ($marca->marca_comercial == "" || $marca->marca_comercial == NULL) {
 				$marcas["NULL"] = "SIN MARCA";
 			} else {
 				$marcas[$marca->marca_comercial] = $marca->marca_comercial;
 			}
-
 		}
 
-		$modelos_distintos = ProductoBusqueda::select('armadora')->distinct()->orderby('armadora', 'asc')->get();
+		$modelos_distintos = $this->somaSelect("SELECT DISTINCT pa.armadora FROM productos_aplicaciones pa WHERE pa.deleted_at IS NULL AND pa.armadora IS NOT NULL AND pa.armadora != '' ORDER BY pa.armadora ASC");
 		$modelos = [];
 		foreach ($modelos_distintos as $modelo) {
-			if ($modelo->armadora == "" || $modelo->armadora == NULL || $modelo->armadora == "NULL") {
-				$modelos["NULL"] = "NO APLICA";
-			} else {
-				$modelos[$modelo->armadora] = $modelo->armadora;
-			}
-
+			$modelos[$modelo->armadora] = $modelo->armadora;
 		}
+
 		$titulo = "Generador de catalogos";
 
 		return view('web.filtros_catalogos', compact('lineas', 'marcas', 'modelos', 'titulo', 'subgrupos'));
@@ -1769,38 +1691,33 @@ class WebController extends Controller {
 
 	public function apiBusqueda(Request $request) {
 
-		extract($request->all());
+		$q = $request->input('q', '');
 		if (stripos($q, ' ') !== false) {
-			$query = $this->query('palabras_pedidos', $q);
+			list($sql, $bindings) = $this->querySoma('palabras_pedidos', $q);
 		} else {
-			$query = $this->query('palabra', $q);
+			$q_normalizado = preg_replace('/[^A-Za-z0-9]/', '', $q);
+			list($sql, $bindings) = $this->querySoma('palabra', $q_normalizado);
 		}
 
-		$resultados = \DB::select($query);
+		$resultados = $this->somaSelect($sql, $bindings);
 		$resultados = array_intersect_key($resultados, array_unique(array_column($resultados, 'codigo_nikko')));
 		$total_resultados = count($resultados);
-		$p = 1;
-		$offset = ($p - 1) * 250;
-		$resultados = array_slice($resultados, $offset, 250);
+		$resultados = array_slice($resultados, 0, 250);
 
 		return json_encode($resultados);
 	}
 
 	public function apiSubgrupos(Request $request) {
-		extract($request->all());
-		$subgrupos = [];
+		$grupos = $request->input('grupos');
 
-		if (!isset($grupos)) {
-			$subgrupos += ProductoBusqueda::select('subgrupo')->distinct()->orderBy('subgrupo', 'asc')->get()->toArray();
+		if (!$grupos) {
+			$subgrupos = $this->somaSelect("SELECT DISTINCT pw.subgrupo FROM productos_web pw WHERE pw.deleted_at IS NULL AND pw.subgrupo IS NOT NULL ORDER BY pw.subgrupo ASC");
 		} else {
-			foreach ($grupos as $key => $value) {
-				// code...
-				$subgrupos += ProductoBusqueda::select('subgrupo')->where('grupo', $value)->groupBy('subgrupo')->orderBy('subgrupo', 'asc')->get()->toArray();
-			}
+			$placeholders = implode(',', array_fill(0, count($grupos), '?'));
+			$subgrupos = $this->somaSelect("SELECT DISTINCT pw.subgrupo FROM productos_web pw WHERE pw.grupo IN ({$placeholders}) AND pw.deleted_at IS NULL AND pw.subgrupo IS NOT NULL ORDER BY pw.subgrupo ASC", $grupos);
 		}
 
-		return json_encode($subgrupos);
-
+		return json_encode(collect($subgrupos)->map(function($r) { return $r->toArray(); })->all());
 	}
 
 	public function apiImagenes(Request $request) {
