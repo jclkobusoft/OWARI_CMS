@@ -553,7 +553,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         minChars: 2,
         noCache: true,
         onSelect: function(suggestion) {
-            $("#tipo_busqueda").html("").append("<input type='hidden' name='a' value='1'>");
+            window.location.href = '{{route('pagina.detalles_producto', '')}}/' + suggestion.data;
         }
     });
     </script>

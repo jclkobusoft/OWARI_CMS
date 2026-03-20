@@ -480,14 +480,15 @@ class WebController extends Controller {
 	public function autocompletar(Request $request) {
 		$query = $request->input('query', '');
 		$resultados = \DB::connection('owari_soma')->select("
-			SELECT DISTINCT pw.descripcion_1 as value, pw.descripcion_1 as data
+			SELECT DISTINCT
+				p.clave || ' - ' || COALESCE(pw.descripcion_1, '') as value,
+				REPLACE(REPLACE(p.clave, '/', '_'), '#', '+') as data
 			FROM productos p
 			LEFT JOIN productos_web pw ON p.id = pw.id_producto AND pw.deleted_at IS NULL
-			WHERE (p.buscar @@ plainto_tsquery('simple', ?) OR pw.descripcion_1 ILIKE ? OR p.clave ILIKE ?)
+			WHERE (pw.descripcion_1 ILIKE ? OR p.clave ILIKE ?)
 			AND p.deleted_at IS NULL
-			AND pw.descripcion_1 IS NOT NULL
 			LIMIT 15
-		", [$query, '%' . $query . '%', '%' . $query . '%']);
+		", ['%' . $query . '%', '%' . $query . '%']);
 		return json_encode(["query" => $query, "suggestions" => $resultados]);
 	}
 
