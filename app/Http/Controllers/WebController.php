@@ -359,7 +359,17 @@ class WebController extends Controller {
 	 * - Datos de display vienen de productos, productos_web, marcas, productos_precios
 	 * Retorna [$sql, $bindings]
 	 */
+	private function quitarAcentos($texto) {
+		$buscar =    ['á','é','í','ó','ú','Á','É','Í','Ó','Ú','ñ','Ñ','ü','Ü'];
+		$reemplazar = ['a','e','i','o','u','A','E','I','O','U','n','N','u','U'];
+		return str_replace($buscar, $reemplazar, $texto);
+	}
+
 	private function querySoma($tipo_query, $string) {
+		// Normalizar: quitar acentos del input (el campo buscador ya está sin acentos)
+		if (is_string($string)) {
+			$string = $this->quitarAcentos($string);
+		}
 		$bindings = [];
 		$select = "SELECT
 				m.nombre as marca_comercial,
@@ -478,17 +488,20 @@ class WebController extends Controller {
 	}
 
 	public function autocompletar(Request $request) {
-		$query = $request->input('query', '');
+		$query = $this->quitarAcentos($request->input('query', ''));
 		$resultados = \DB::connection('owari_soma')->select("
-			SELECT DISTINCT
+			SELECT
 				p.clave || ' - ' || COALESCE(pw.descripcion_1, '') as value,
 				REPLACE(REPLACE(p.clave, '/', '_'), '#', '+') as data
-			FROM productos p
+			FROM (
+				SELECT DISTINCT producto_id
+				FROM productos_busqueda
+				WHERE buscador ILIKE ?
+				LIMIT 15
+			) pb
+			INNER JOIN productos p ON pb.producto_id = p.id
 			LEFT JOIN productos_web pw ON p.id = pw.id_producto AND pw.deleted_at IS NULL
-			WHERE (pw.descripcion_1 ILIKE ? OR p.clave ILIKE ?)
-			AND p.deleted_at IS NULL
-			LIMIT 15
-		", ['%' . $query . '%', '%' . $query . '%']);
+		", ['%' . $query . '%']);
 		return json_encode(["query" => $query, "suggestions" => $resultados]);
 	}
 
