@@ -138,7 +138,7 @@ class WebController extends Controller {
 				$param_busqueda = $q;
 			} else {
 				$tipo_busqueda = 'palabra';
-				$param_busqueda = preg_replace('/[^A-Za-z0-9]/', '', $q);
+				$param_busqueda = preg_replace('/[^A-Za-z0-9]/', '', $this->quitarAcentos($q));
 			}
 
 			$busqueda = "Resultados para: " . $q;
