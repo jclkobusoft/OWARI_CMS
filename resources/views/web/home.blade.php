@@ -1,7 +1,9 @@
-@extends('web.plantilla.base') 
+@extends('web.plantilla.base')
 @section('contenido')
 
-	
+	@include('web.partials.modal_flyers')
+
+
     <!-- Comienza slide del banner principal -->
     <div class="main-slides">
         <div class="container">
