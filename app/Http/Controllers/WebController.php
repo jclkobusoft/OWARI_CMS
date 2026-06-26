@@ -46,39 +46,40 @@ class WebController extends Controller {
 
 	/**
 	 * Trae los flyers vigentes desde SOMA (CMS) para mostrarlos en el modal de la home.
-	 * Cacheado 5 min para no golpear SOMA en cada carga. Si SOMA no responde, [].
+	 * SIN cache: se consulta en vivo en cada carga para que un flyer nuevo aparezca
+	 * de inmediato. Timeout corto para no frenar la home si SOMA tarda. Si SOMA no
+	 * responde, devuelve [] y la home carga normal.
 	 */
 	private function flyersVigentes() {
-		return \Cache::remember('flyers_vigentes_home', 300, function () {
-			$base = 'https://owari.appsoma.online';
-			try {
-				$ch = curl_init($base . '/somma/v2.0/flyers/vigentes');
-				curl_setopt_array($ch, [
-					CURLOPT_RETURNTRANSFER => true,
-					CURLOPT_TIMEOUT        => 6,
-					CURLOPT_SSL_VERIFYPEER => false,
-					CURLOPT_HTTPHEADER     => ['Accept: application/json'],
-				]);
-				$resp = curl_exec($ch);
-				curl_close($ch);
+		$base = 'https://owari.appsoma.online';
+		try {
+			$ch = curl_init($base . '/somma/v2.0/flyers/vigentes');
+			curl_setopt_array($ch, [
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_TIMEOUT        => 4,
+				CURLOPT_CONNECTTIMEOUT => 2,
+				CURLOPT_SSL_VERIFYPEER => false,
+				CURLOPT_HTTPHEADER     => ['Accept: application/json'],
+			]);
+			$resp = curl_exec($ch);
+			curl_close($ch);
 
-				$data  = json_decode($resp, true);
-				$lista = (is_array($data) && isset($data['flyers'])) ? $data['flyers'] : [];
+			$data  = json_decode($resp, true);
+			$lista = (is_array($data) && isset($data['flyers'])) ? $data['flyers'] : [];
 
-				return array_map(function ($f) use ($base) {
-					$url = isset($f['url']) ? (string) $f['url'] : '';
-					if ($url !== '' && strpos($url, 'http') !== 0) {
-						$url = $base . '/' . ltrim($url, '/');
-					}
-					$f['url'] = $url;
-					return $f;
-				}, array_values(array_filter($lista, function ($f) {
-					return !empty($f['url']);
-				})));
-			} catch (\Throwable $e) {
-				return [];
-			}
-		});
+			return array_map(function ($f) use ($base) {
+				$url = isset($f['url']) ? (string) $f['url'] : '';
+				if ($url !== '' && strpos($url, 'http') !== 0) {
+					$url = $base . '/' . ltrim($url, '/');
+				}
+				$f['url'] = $url;
+				return $f;
+			}, array_values(array_filter($lista, function ($f) {
+				return !empty($f['url']);
+			})));
+		} catch (\Throwable $e) {
+			return [];
+		}
 	}
 
 	public function quienesSomos() {

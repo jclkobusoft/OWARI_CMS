@@ -40,7 +40,9 @@
         return m ? m.pop() : '';
     }
     // Si ya cerro los flyers, no se muestran hasta que expire la cookie (24 h).
-    if (getCookie('flyers_vistos') === '1') return;
+    // --- PRUEBAS: desactivado para que el modal aparezca SIEMPRE al entrar. ---
+    // Para reactivar el ciclo de 24 h, descomenta la siguiente linea:
+    // if (getCookie('flyers_vistos') === '1') return;
 
     var overlay = document.getElementById('flyers-overlay');
     if (!overlay) return;
