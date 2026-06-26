@@ -9,8 +9,15 @@
         <div id="flyers-carousel" style="position:relative; display:inline-block;">
             @foreach($flyers as $i => $f)
                 <div class="flyer-slide" data-index="{{ $i }}" style="display:{{ $i === 0 ? 'block' : 'none' }};">
-                    <img src="{{ $f['url'] }}" alt="{{ $f['titulo'] ?? 'Promocion' }}"
-                         style="display:block; max-width:92vw; max-height:84vh; width:auto; height:auto; border-radius:10px; box-shadow:0 10px 40px rgba(0,0,0,0.5);" />
+                    @if(!empty($f['enlace']))
+                        <a href="{{ $f['enlace'] }}" target="_blank" rel="noopener" style="display:inline-block;">
+                            <img src="{{ $f['url'] }}" alt="{{ $f['titulo'] ?? 'Promocion' }}"
+                                 style="display:block; max-width:92vw; max-height:84vh; width:auto; height:auto; border-radius:10px; box-shadow:0 10px 40px rgba(0,0,0,0.5); cursor:pointer;" />
+                        </a>
+                    @else
+                        <img src="{{ $f['url'] }}" alt="{{ $f['titulo'] ?? 'Promocion' }}"
+                             style="display:block; max-width:92vw; max-height:84vh; width:auto; height:auto; border-radius:10px; box-shadow:0 10px 40px rgba(0,0,0,0.5);" />
+                    @endif
                 </div>
             @endforeach
 
