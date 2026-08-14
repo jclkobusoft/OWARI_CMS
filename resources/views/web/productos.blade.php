@@ -132,18 +132,32 @@
                                                 </ul>
                                             </div>
                                         </div>
-                                        <div class="row" style="font-size:14px; font-weight:bold; margin:5px 0;">
-                                                    <div class="col-md-3">{{ number_format((float)$resultado->precio_normal,2,'.',',') }}</div>
-                                                    <div class="col-md-3">{{ number_format((float)$resultado->precio_final,2,'.',',') }}</div>
-                                                    <div class="col-md-3">{{ $resultado->minimo_compra_oferta }}</div>
-                                                    <div class="col-md-3 existencia_real_{{ $key }}"></div>
+                                        {{-- Precio publico, publico + IVA y stock: los 3 EN VIVO desde SOMA (una sola llamada) --}}
+                                        <div class="row" style="font-size:14px; font-weight:bold; margin:5px 0; text-align:center;">
+                                                    <div class="col-md-4 col-4">
+                                                        <small style="font-weight:normal; color:#888;">Precio público</small>
+                                                        <span class="precio_publico_{{ $key }}">—</span>
+                                                    </div>
+                                                    <div class="col-md-4 col-4">
+                                                        <small style="font-weight:normal; color:#888;">Con IVA</small>
+                                                        <span class="precio_iva_{{ $key }}">—</span>
+                                                    </div>
+                                                    <div class="col-md-4 col-4">
+                                                        <small style="font-weight:normal; color:#888;">Stock</small>
+                                                        <span class="existencia_real_{{ $key }}">—</span>
+                                                    </div>
                                                     <script>
                                                         setTimeout(() => {
                                                             $.get("https://owari.appsoma.online/somma/v2.0/api/existencias?clave={{ urlencode($resultado->codigo_nikko) }}",{},
                                                                     function (data, textStatus, jqXHR) {
                                                                         if (typeof data === 'string') data = JSON.parse(data);
-                                                                        var existencia = parseInt(data.existencia);
-                                                                        $('.existencia_real_{{ $key }}').text("").text(existencia);
+                                                                        $('.existencia_real_{{ $key }}').text(parseInt(data.existencia) || 0);
+                                                                        var fmt = function (v) {
+                                                                            return (v === null || v === undefined) ? '—'
+                                                                                : '$' + Number(v).toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                                                        };
+                                                                        $('.precio_publico_{{ $key }}').text(fmt(data.precio_publico));
+                                                                        $('.precio_iva_{{ $key }}').text(fmt(data.precio_publico_iva));
                                                                     }
                                                                 );
                                                         }, 1500);
