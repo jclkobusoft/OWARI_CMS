@@ -227,7 +227,9 @@ class WebController extends Controller {
 			array_push($productos, urlencode($resultado->codigo_nikko));
 		}
 
-		$url = 'https://sistemasowari.com:8443/catalowari/api/productos-existencias?' . http_build_query(["productos" => $productos]);
+		// Existencias desde SOMA (fuente de la verdad). El consumo esta comentado
+		// mas abajo desde antes; se deja la URL correcta por si se reactiva.
+		$url = 'https://owari.appsoma.online/somma/v2.0/api/existencias?' . http_build_query(["claves" => $productos]);
 		$existencias = [];
 		$botones = [];
 		if ($total_resultados / 50 > 10) {

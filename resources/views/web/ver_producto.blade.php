@@ -348,9 +348,9 @@ $('.slider-productos-mini').slick({
 });
     
 
-        $.get("https://sistemasowari.com:8443/catalowari/api/producto-existencia?clave={{ urlencode($producto->codigo_nikko) }}",{},
+        $.get("https://owari.appsoma.online/somma/v2.0/api/existencias?clave={{ urlencode($producto->codigo_nikko) }}",{},
             function (data, textStatus, jqXHR) {
-                data = JSON.parse(data);
+                if (typeof data === 'string') data = JSON.parse(data);
                 var existencia = parseInt(data.existencia);
                 $('.existo').text("").text(existencia);
             }
