@@ -134,18 +134,9 @@
                                         </div>
                                         {{-- Precio publico, publico + IVA y stock: los 3 EN VIVO desde SOMA (una sola llamada) --}}
                                         <div class="row" style="font-size:14px; font-weight:bold; margin:5px 0; text-align:center;">
-                                                    <div class="col-md-4 col-4">
-                                                        <small style="font-weight:normal; color:#888;">Precio público</small>
-                                                        <span class="precio_publico_{{ $key }}">—</span>
-                                                    </div>
-                                                    <div class="col-md-4 col-4">
-                                                        <small style="font-weight:normal; color:#888;">Con IVA</small>
-                                                        <span class="precio_iva_{{ $key }}">—</span>
-                                                    </div>
-                                                    <div class="col-md-4 col-4">
-                                                        <small style="font-weight:normal; color:#888;">Stock</small>
-                                                        <span class="existencia_real_{{ $key }}">—</span>
-                                                    </div>
+                                                    <div class="col-md-4 col-4 precio_publico_{{ $key }}">—</div>
+                                                    <div class="col-md-4 col-4 precio_iva_{{ $key }}">—</div>
+                                                    <div class="col-md-4 col-4 existencia_real_{{ $key }}">—</div>
                                                     <script>
                                                         setTimeout(() => {
                                                             $.get("https://owari.appsoma.online/somma/v2.0/api/existencias?clave={{ urlencode($resultado->codigo_nikko) }}",{},
